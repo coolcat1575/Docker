@@ -1,0 +1,648 @@
+
+version: '3.8'
+
+services:
+######################################################################### home-assistant
+  homeassistant:
+    #image: homeassistant/home-assistant:0.110.4    #Specific Version
+    image: homeassistant/home-assistant:latest     #Latest Production
+    #image: homeassistant/home-assistant:rc          #Latest Beta Code
+    container_name: "homeassistant"
+    hostname: homeassistant
+    healthcheck:
+      test: ["CMD", "curl", "-sI", "http://127.0.0.1:8123"]
+      interval: 30s
+      timeout: 1s
+      retries: 24
+    restart: unless-stopped
+#    devices:
+#      - /dev/ttyUSB0:/dev/ttyUSB0
+#      - /dev/ttyUSB1:/dev/ttyUSB1
+#      - /dev/ttyACM0:/dev/ttyACM0
+    depends_on:
+      hadb:
+        condition: service_healthy
+#      influxdb:
+#        condition: service_healthy
+#      mqtt:
+#        condition: service_started
+    network_mode: host
+    ports:
+      - 443:443
+    volumes:
+      - home-assistant_vol:/config
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+#      - DISABLE_JEMALLOC=true #optional
+######################################################################### ha-db
+  hadb:
+    image: mariadb/server
+    container_name: hadb
+    restart: unless-stopped
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=${MYSQL_ROOT_PASSWORD} --execute \"SHOW DATABASES;\""
+      interval: 3s
+      timeout: 1s
+      retries: 5
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=ha_db
+      - MYSQL_USER=homeassistant
+      - MYSQL_PASSWORD=${HA_MYSQL_PASSWORD}
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - ha-db_vol:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+     ls200_network:
+######################################################################### portainer
+  portainer:
+    image: portainer/portainer-ce
+    container_name: "portainer"
+    command: -H unix:///var/run/docker.sock
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+      - 8000:8000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_vol:/data
+    networks:
+     ls200_network:
+######################################################################### node-red
+#  nodered:
+#    image: nodered/node-red:latest
+#    container_name: "nodered"
+#    depends_on:
+#      homeassistant:
+#        condition: service_healthy
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Europe/Stockholm
+#    ports:
+#      - "1880:1880"
+#    volumes:
+#      - node-red_vol:/data
+#    restart: unless-stopped
+#    network_mode: host
+#    networks:
+#     ls200_network:
+
+######################################################################### librespeed
+  librespeed:
+    image: linuxserver/librespeed
+    container_name: "librespeed"
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+      - PASSWORD=${LIBRESPEED_PASSWORD}
+      - CUSTOM_RESULTS=true #optional
+#      - DB_TYPE=sqlite #optional
+#      - DB_NAME=DB_NAME #optional
+#      - DB_HOSTNAME=DB_HOSTNAME #optional
+#      - DB_USERNAME=DB_USERNAME #optional
+#      - DB_PASSWORD=DB_PASSWORD #optional
+    volumes:
+      - librespeed_vol:/config
+    ports:
+      - "8888:80"
+    networks:
+     ls200_network:
+
+######################################################################### speedtest
+  speedtest:
+    container_name: speedtest
+    image: henrywhitaker3/speedtest-tracker
+    restart: unless-stopped
+    ports:
+      - 8765:80
+    volumes:
+      - speedtest_vol:/config
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+      - OOKLA_EULA_GDPR=true
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "200k"
+    networks:
+     ls200_network:
+
+#################################################################### code-server
+  codeserver:
+    image: ghcr.io/linuxserver/code-server
+    container_name: codeserver
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+      - PASSWORD=${CODESERVER_PASSWORD}
+      - SUDO_PASSWORD=${CODESERVER_SUDO_PASSWORD}
+      - SUDO_PASSWORD_HASH= #optional
+      - PROXY_DOMAIN=code-server.my.domain #optional
+    volumes:
+      - code-server_vol:/config
+      - home-assistant_vol:/config/workspace
+      - homer_vol:/config/homer
+      - /usr/local/docker:/config/docker
+    ports:
+      - 8444:8443
+    restart: unless-stopped
+    networks:
+     ls200_network:
+
+######################################################################### postgres-server:
+  postgresserver:
+    image: postgres:latest
+    container_name: postgresserver
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - POSTGRES_USER=zabbix
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=zabbix
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - postgres-server_vol:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+     ls200_network:
+######################################################################### zabbix-snmptraps:
+  zabbixsnmptraps:
+    image: zabbix/zabbix-snmptraps:alpine-5.2-latest
+    container_name: zabbixsnmptraps
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - zabbix-snmptraps_vol:/var/lib/zabbix/snmptraps:rw
+      - zabbix-snmptraps_vol:/usr/share/snmp/mibs:ro
+    ports:
+      - 162:1162/udp
+    restart: unless-stopped
+    networks:
+     ls200_network:
+######################################################################### zabbix-server-pgsql:
+  zabbixserver:
+    image: zabbix/zabbix-server-pgsql:alpine-5.2-latest
+    hostname: zabbixserver
+    container_name: zabbixserver
+    depends_on:
+      postgresserver:
+        condition: service_healthy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - DB_SERVER_HOST=postgresserver
+      - POSTGRES_USER=zabbix
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=zabbix
+      - ZBX_ENABLE_SNMP_TRAPS=true
+    ports:
+      - 10051:10051
+    volumes:
+      - zabbix-snmptraps_vol:/var/lib/zabbix/snmptraps:rw
+      - zabbix-snmptraps_vol:/usr/share/snmp/mibs:ro
+      - zabbix-server-pgsql_vol:/var/lib/zabbix/export
+    restart: unless-stopped
+    networks:
+     ls200_network:
+######################################################################### zabbix-web-nginx-pgsql:
+  zabbixwebnginx:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-5.2-latest
+    container_name: zabbixwebnginx
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - ZBX_SERVER_HOST=zabbixserver
+      - DB_SERVER_HOST=postgresserver
+      - POSTGRES_USER=zabbix
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=zabbix
+    ports:
+      - 443:8443
+      - 80:8080
+    volumes:
+      - zabbix-web-nginx-pgsql_vol:/etc/ssl/nginx:ro
+    restart: unless-stopped
+    networks:
+     ls200_network:
+######################################################################### heimdall:
+  heimdall:
+    image: ghcr.io/linuxserver/heimdall
+    container_name: heimdall
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    volumes:
+      - heimdall_vol:/config
+    ports:
+      - 7080:80
+      - 7443:443
+    restart: unless-stopped
+    networks:
+     ls200_network:
+######################################################################## zabbix-agent:
+  zabbixagent:
+    build:
+     context: ./agent2/alpine
+     cache_from:
+      - alpine:3.12
+    image: zabbix-agent2:alpine-local
+    container_name: zabbixagent2
+    privileged: true
+    environment:
+      - ZBX_SERVER_HOST=172.20.200.0/24
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    ports:
+     - 10050:10050
+    restart: unless-stopped
+    volumes:
+     - /etc/localtime:/etc/localtime:ro
+     - /etc/timezone:/etc/timezone:ro
+     - zabbix-agent_vol:/etc/zabbix/:ro
+#     - zabbix-agent_vol:/etc/zabbix/zabbix_agentd.d:ro #optional
+#     - zabbix-agent_vol:/var/lib/zabbix/modules:ro #optional
+#     - zabbix-agent_vol:/var/lib/zabbix/enc:ro #optional
+#     - zabbix-agent_vol:/var/lib/zabbix/ssh_keys:ro #optional
+#     - /dev/sdc:/dev/sdc #optional
+     - zabbix-agent_vol:/dev/sdc
+    links:
+     - zabbixserver:zabbixserver
+    networks:
+     ls200_network:
+#################################################################### glances:
+  glances:
+    image: nicolargo/glances:latest-alpine
+    container_name: glances
+    restart: unless-stopped
+    pid: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - "GLANCES_OPT=-w"
+    ports:
+      - 61208:61208
+    networks:
+     ls200_network:
+#################################################################### mqtt:
+  mqtt:
+    image: eclipse-mosquitto:latest
+    container_name: "mqtt"
+    restart: always
+    network_mode: host
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - mqtt_vol:/mosquitto/data
+      - mqtt_vol:/mosquitto/config
+      - mqtt_vol:/mosquitto/log
+    environment:
+      - TZ=Europe/Stockholm
+#################################################################### Adguardhome
+  adguardhome:
+    container_name: adguardhome
+    hostname: adguardhome
+    image: adguard/adguardhome:latest
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 67:67/udp
+      - 68:68/tcp
+      - 68:68/udp
+      - 80:80/tcp
+      - 443:443/tcp
+      - 3000:3000/tcp
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+      - WEBPASSWORD=${ADGUARDHOME_PASSWORD}
+      - VIRTUAL_HOST=pihole
+      - DNS1=208.67.222.222
+      - DNS2=208.67.220.220
+      - DNS=127.0.0.1
+      - REV_SERVER=true
+      - REV_SERVER_DOMAIN=ls200.internal
+      - REV_SERVER_TARGET=192.168.200.1
+      - REV_SERVER_CIDR=192.168.200.0/24
+   # Volumes store your data between container upgrades
+    volumes:
+      - adguardhome_vol:/opt/adguardhome/work
+      - adguardhome_vol:/opt/adguardhome/conf
+   # Recommended but not required (DHCP needs NET_ADMIN)
+   #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+   #cap_add:
+   #  - NET_ADMIN
+    restart: unless-stopped
+    networks:
+      mac_vlan:
+        ipv4_address: 192.168.200.2
+#################################################################### grafana
+#  grafana:
+#    image: grafana/grafana:latest
+#    container_name: "grafana"
+#    depends_on:
+#      influxdb:
+#        condition: service_healthy
+#    environment:
+#      GF_RENDERING_SERVER_URL: http://192.168.200.20:8081/render
+#      GF_RENDERING_CALLBACK_URL: http://192.168.200.20:3000/
+#      GF_LOG_FILTERS: rendering:debug
+#   # network_mode: host
+#    networks:
+#     ls200_network:
+#    ports:
+#      - 3000:3000
+#    restart: unless-stopped
+#    volumes:
+#      - grafana_vol:/var/lib/grafana
+#################################################################### renderer
+#  renderer:
+#    image: grafana/grafana-image-renderer:latest
+#    container_name: "grafana-renderer"
+#    depends_on:
+#      grafana:
+#        condition: service_started
+#    ports:
+#      - 8081:8081
+#    networks:
+#     ls200_network:
+#################################################################### influxdb
+#  influxdb:
+#    image: influxdb:latest
+#    container_name: "influxdb"
+#    healthcheck:
+#      test: ["CMD", "curl", "-sI", "http://127.0.0.1:8086/ping"]
+#      interval: 30s
+#      timeout: 1s
+#      retries: 24
+#    environment:
+#      - TZ=Europe/Stockholm
+#      - INFLUXDB_DB=telegraf
+#      - INFLUXDB_USER=telegraf
+#      - INFLUXDB_ADMIN_ENABLED=true
+#      - INFLUXDB_ADMIN_USER=admin
+#      - INFLUXDB_ADMIN_PASSWORD=${INFLUXDBADMIN_PASSWORD}
+#   # network_mode: host
+#    networks:
+#     ls200_network:
+#    ports:
+#      - 8083:8083
+#      - 8086:8086
+#    restart: unless-stopped
+#    volumes:
+#      - influxdb_vol:/var/lib/influxdb
+#################################################################### telegraf
+#  telegraf:
+#    image: telegraf
+#    container_name: telegraf
+#    restart: always
+#    extra_hosts:
+#     - "influxdb:192.168.200.20"
+#    environment:
+#      HOST_PROC: /rootfs/proc
+#      HOST_SYS: /rootfs/sys
+#      HOST_ETC: /rootfs/etc
+#    volumes:
+#     - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+#     - /var/run/docker.sock:/var/run/docker.sock:ro
+#     - /sys:/rootfs/sys:ro
+#     - /proc:/rootfs/proc:ro
+#     - /etc:/rootfs/etc:ro
+#    networks:
+#     ls200_network:
+######################################################################### volumes:
+volumes:
+  mqtt_vol:
+#  kodi-db_vol:
+  ha-db_vol:
+  zabbix-agent_vol:
+  zabbix-web-nginx-pgsql_vol:
+  zabbix-snmptraps_vol:
+  postgres-server_vol:
+  zabbix-server-pgsql_vol:
+  home-assistant_vol:
+  portainer_vol:
+  librespeed_vol:
+  homer_vol:
+  node-red_vol:
+  code-server_vol:
+  speedtest_vol:
+  heimdall_vol:
+  adguardhome_vol:
+#  influxdb_vol:
+#  grafana_vol:
+#  organizr_vol:
+#  netdataconfig_vol:
+#  netdatalib_vol:
+#  netdatacache_vol:
+
+######################################################################### networks
+networks:
+  ls200_network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.20.200.0/24
+
+  mac_vlan:
+    driver: macvlan
+    driver_opts:
+      parent: eno1
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.200.0/24
+          gateway: 192.168.200.1
+
+#-unused-#################################################################################################################################################
+######################################################################### Homer
+#  homer:
+#    container_name: homer
+#    image: b4bz/homer:latest
+#    ports:
+#      - "8080:8080/tcp"
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Europe/Stockholm
+#    volumes:
+#      - homer_vol:/www/assets/
+#    # Recommended but not required (DHCP needs NET_ADMIN)
+#    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+#    #cap_add:
+#    #  - NET_ADMIN
+#    restart: unless-stopped
+#################################################################### esphomeyaml:
+#  esphomeyaml:
+#    image: ottowinter/esphomeyaml:latest
+#    container_name: esphomeyaml
+#    command: esphomeyaml dashboard
+#    restart: always
+#    network_mode: host
+#    ports:
+#      - 6052:6052
+#      - 6123:6123
+#    volumes:
+#      - /home/$USER/docker_files/esphomeyaml:/config
+#    environment:
+#      - TZ=Europe/Stockholm
+#################################################################### renderer
+#  renderer:
+#    image: grafana/grafana-image-renderer:latest
+#    container_name: "grafana-renderer"
+#    depends_on:
+#      grafana:
+#        condition: service_started
+#    ports:
+#      - 8081:8081
+#################################################################### Organizr
+#  organizr:
+#    container_name: organizr
+#    image: organizr/organizr
+#    ports:
+#      - "8088:80/tcp"
+#    environment:
+#      - TZ=Europe/Stockholm
+#      - FPM=false
+#      - BRANCH=v2-master 
+    # Volumes store your data between container upgrades
+#    volumes:
+#      - /usr/local/docker/docker_files/homer/www/assets:/www/assets/
+#      - /homer_vol:/www/assets/
+#      - organizr_vol:/config/
+    # Recommended but not required (DHCP needs NET_ADMIN)
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    #cap_add:
+    #  - NET_ADMIN
+#    restart: unless-stopped
+#################################################################### Net-Data
+#  netdata:
+#    image: netdata/netdata
+#    container_name: netdata
+#    hostname: example.com # set to fqdn of host
+#    ports:
+#      - 19999:19999
+#    restart: unless-stopped
+#    cap_add:
+#      - SYS_PTRACE
+#    security_opt:
+#      - apparmor:unconfined
+#    volumes:
+#      - netdataconfig_vol:/etc/netdata
+#      - netdatalib_vol:/var/lib/netdata
+#      - netdatacache_vol:/var/cache/netdata
+#      - /etc/passwd:/host/etc/passwd:ro
+#      - /etc/group:/host/etc/group:ro
+#      - /proc:/host/proc:ro
+#      - /sys:/host/sys:ro
+#      - /etc/os-release:/host/etc/os-release:ro
+######################################################################### deconz:
+#  deconz:
+#    container_name: deconz
+#    image: marthoc/deconz
+#    restart: unless-stopped
+#    network_mode: host
+#    environment:
+#      # You can access Deconz at this port
+#      DECONZ_WEB_PORT: 8080
+#      DECONZ_WS_PORT: 8088
+#
+#      # Set VNC_MODE to 0 to disable it completely
+#      DECONZ_VNC_MODE: 1
+#      DECONZ_VNC_PORT: 5900
+#      DECONZ_VNC_PASSWORD: "${VNC_PASSWORD}"
+#    volumes:
+#      - /etc/localtime:/etc/localtime:ro
+#      - /etc/timezone:/etc/timezone:ro
+#      # Replace <local path> with a path where all deconz config will be stored.
+#      - <local path>:/root/.local/share/dresden-elektronik/deCONZ
+#    devices:
+#      - "/dev/ttyUSB0:/dev/ttyUSB0"
+######################################################################### ha-db
+#  kodidb:
+#    image: mariadb/server
+#    container_name: kodidb
+#    restart: unless-stopped
+#    healthcheck:
+#      test: "/usr/bin/mysql --user=root --password=${KODI_ROOT_PASSWORD} --execute \"SHOW DATABASES;\""
+#      interval: 3s
+#      timeout: 1s
+#      retries: 5
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=${KODI_ROOT_PASSWORD}
+#      - MYSQL_DATABASE=kodi_db
+#      - MYSQL_USER=kodi
+#      - MYSQL_PASSWORD=${KODI_MYSQL_PASSWORD}
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Europe/Stockholm
+#    volumes:
+#      - kodi-db_vol:/var/lib/mysql
+#    ports:
+#      - 3307:3306
+#    networks:
+#     ls200_network:
+#################################################################### Pi-hole
+#  pihole:
+#    container_name: pihole
+#    hostname: pihole
+#    image: pihole/pihole:latest
+#    ports:
+#      - 53:53/tcp
+#      - 53:53/udp
+#      - 67:67/udp
+#      - 80:80/tcp
+#      - 443:443/tcp
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Europe/Stockholm
+#      - WEBPASSWORD=${PIHOLE_PASSWORD}
+#      - VIRTUAL_HOST=pihole
+#      - DNS1=208.67.222.222
+#      - DNS2=208.67.220.220
+#      - DNS=127.0.0.1
+#      - REV_SERVER=true
+#      - REV_SERVER_DOMAIN=ls200.internal
+#      - REV_SERVER_TARGET=192.168.200.1
+#      - REV_SERVER_CIDR=192.168.200.0/24
+#   # Volumes store your data between container upgrades
+#    volumes:
+#      - pihole_vol:/etc/pihole/
+#      - pihole_vol:/etc/dnsmasq.d/
+#      - './etc-pihole/:/etc/pihole/'
+#      - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
+#   # Recommended but not required (DHCP needs NET_ADMIN)
+#   #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+#   #cap_add:
+#   #  - NET_ADMIN
+#    restart: unless-stopped
+#    networks:
+#      mac_vlan:
+#        ipv4_address: 192.168.200.2

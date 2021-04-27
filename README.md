@@ -69,7 +69,7 @@ This guide is aimed at everyone seting up their own home automation server for t
 
 ### start docker 
 - run the following command to start the docker:
-  - /usr/local/docker/docker-compose up -d 
+  - ```/usr/local/docker/docker-compose up -d``` 
 
 ## Docker Applications:
 

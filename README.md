@@ -1,14 +1,16 @@
 # Pierre's Home Automation Server
 This guide is aimed at everyone seting up their own home automation server for the first time.
  
-## Prerequisite: 
+## Installation:  
+ 
+### Prerequisite: 
 - 64 bit capable computer 
 - Debian amd64 iso (Get the netinstallation ISO from here https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/ )
 - USB memory 4 GB
 - Balena Etcher (Get it here https://www.balena.io/etcher/ )
 - Basic linux knowledge
 
-## Install Debian:
+### Install Debian:
 - Burn ISO to USB memory with Balena Etcher
 - Boot on USB memory and use graphical interface to install Debian according to notes below
   - Select keymap to match your keyboard
@@ -23,7 +25,7 @@ This guide is aimed at everyone seting up their own home automation server for t
   - Install Grub
 - Remove the USB memory and reboot computer
 
-## Install Docker:
+### Install Docker:
 - Log into computer with the new user
 - run the following command to switch to root user:
   - ```su -```
@@ -42,21 +44,28 @@ This guide is aimed at everyone seting up their own home automation server for t
 - run the following script to install docker:
   - ```/usr/local/docker/install_docker```
   
-## Test the installation. 
+### Test the installation. 
 - run the following command to move the Docker-main folder:
   - ```docker-compose --version```
 
-## Enable normal user to run docker:
+### Enable normal user to run docker:
 - run the following command to create the group "docker":
   - ```groupadd docker```
 - run the following command to add the user "user" the group "docker":
   - ```usermod -aG docker user``` 
  
-## Reboot computer. 
+### Reboot computer. 
 - run the following command to reboot the :
   - ```reboot```
 
+## Configuring & running Docker:
 
+### Configure enviromental file. 
+- run the following command to configure the env. file :
+  - ```mv /usr/local/docker/env /usr/local/docker/.env```
+  - ```nano /usr/local/docker/.env```
+  - Update the file with your passowords
+  - ```ctrl + x``` to save the file 
 
 |Application|Description|Settings|
 |-----------|-----------|--------|

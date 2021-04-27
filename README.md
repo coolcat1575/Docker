@@ -40,7 +40,7 @@ This guide is aimed at everyone seting up their own home automation server for t
 ## Enable normal user to run docker:
 - run the following command to create the group "docker":
 ```groupadd docker```
-- run the following command to add the user `user` the group "docker":
+- run the following command to add the user "user" the group "docker":
 ```usermod -aG docker user``` 
  
 

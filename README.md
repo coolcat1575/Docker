@@ -67,6 +67,11 @@ This guide is aimed at everyone seting up their own home automation server for t
   - Update the file with your passowords
   - ```ctrl + x``` to save the file 
 
+### Configure docker-compose.conf file. 
+- run the following command to configure the docker-compose.conf file:
+  - ```nano /usr/local/docker/docker-compose.conf```
+  - Update "mac_vlan:" section to reflect your local network 
+
 ### start docker 
 - run the following command to **start** all docker containers:
   - ```/usr/local/docker/docker-compose up -d``` 
@@ -81,7 +86,7 @@ This guide is aimed at everyone seting up their own home automation server for t
 
 |Application|Description|Settings|
 |-----------|-----------|--------|
-|adguardhome|Pi-Hole alternative|Own LAN Address (192.168.200.2)|
+|adguardhome|Pi-Hole alternative|mac_vlan|
 |codeserver|Visual Basic Codeserver|Exposes port 8444|                        
 |glances|Process explorer|Exposes port 61208|           
 |hadb|Home Assistand DB|Exposes port 3306|

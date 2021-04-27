@@ -10,12 +10,16 @@ This guide is aimed at everyone seting up their own home automation server for t
 
 ## Task sequence to install Debian:
 - Burn ISO to USB memory with Balena Etcher
-- Boot on USB memory and install Debian with notes below
-  - Select correct keyboard
+- Boot on USB memory and use graphical interface to install Debian according to notes below
+  - Select keymap to match your keyboard
+  - configure hostname
+  - configure domain name
   - configure root password
   - Configure new user
-  - Remove graphical interface
-  - Add SSH Server
+  - Select "Guided - use entire disk" and coninue
+  - Uncheck "Debian desktop environment"
+  - Uncheck "Print server"
+  - check "SSH Server"
 - Remove the USB memory and reboot computer
 
 ## Task sequence to install Docker:

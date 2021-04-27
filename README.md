@@ -24,8 +24,10 @@ Task sequense to install Docker:
 ```apt install wget unzip ```
 - run the following command to download the repository: 
 ```wget https://github.com/coolcat1575/Docker/archive/refs/heads/main.zip```
-- extract the file with: unzip main.zip
-run the following command to move the Docker-main folder: mv Docker-main/ /usr/local/Docker
+- extract the file with: 
+```unzip main.zip```
+- run the following command to move the Docker-main folder:
+```mv Docker-main/ /usr/local/Docker```
  
  
 

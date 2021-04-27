@@ -1,6 +1,6 @@
 # Pierre's Home Automation Server
 This guide is aimed at everyone setting up their own home automation server for the first time.
-The guide will be update when time is. 
+>The guide will be update when time is. 
  
 ## Installation:  
  

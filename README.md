@@ -68,13 +68,13 @@ This guide is aimed at everyone seting up their own home automation server for t
   - ```ctrl + x``` to save the file 
 
 ### start docker 
-- run the following command to start all docker containers:
+- run the following command to **start** all docker containers:
   - ```/usr/local/docker/docker-compose up -d``` 
 
-- run the following command to stop all docker containers:
+- run the following command to **stop** all docker containers:
   - ```/usr/local/docker/docker-compose down``` 
 
-- run the following command to update all docker containers:
+- run the following command to **update** all docker containers:
   - ```/usr/local/docker/docker-compose pull``` 
 
 ## Docker Applications:

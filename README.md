@@ -20,6 +20,7 @@ This guide is aimed at everyone seting up their own home automation server for t
   - Uncheck "Debian desktop environment"
   - Uncheck "Print server"
   - check "SSH Server"
+  - Install Grub
 - Remove the USB memory and reboot computer
 
 ## Install Docker:

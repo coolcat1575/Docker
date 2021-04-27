@@ -1,14 +1,14 @@
 # Pierre's Home server
 This guide is aimed at everyone seting up their own home automation server for the first time.
  
-Prerequsits: 
+## Prerequsits: 
 - 64 bit capable computer 
 - Debian amd64 iso (Get the netinstallation ISO from here https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/ )
 - USB memory 4 GB
 - Balena Etcher (Get it here https://www.balena.io/etcher/ )
 - Basic linux knowledge
 
-Task sequense to install Debian:
+## Task sequense to install Debian:
 - Burn ISO to USB memory with Balena Etcher
 - Boot on USB memory and install Debian with notes below
   - Select correct keyboard
@@ -18,7 +18,7 @@ Task sequense to install Debian:
   - Add SSH Server
 - Remove the USB memory and reboot computer
 
-Task sequense to install Docker:
+## Task sequense to install Docker:
 - Log into computer with root user
 - run the following command to install wget and unzip: 
 ```apt install wget unzip ```
@@ -28,6 +28,7 @@ Task sequense to install Docker:
 ```unzip main.zip```
 - run the following command to move the Docker-main folder:
 ```mv Docker-main/ /usr/local/Docker```
+- 
  
  
 

@@ -33,7 +33,7 @@ The guide will be update when time is.
 - run the following command to install wget and unzip: 
   - ```apt install wget unzip ```
 - run the following command to download the repository: 
-  - ```wget https://github.com/coolcat1575/Docker/archive/refs/heads/main.zip```
+  - ```wget https://github.com/coolcat1575/Home-Automation-Server/archive/refs/heads/main.zip```
 - extract the file with: 
   - ```unzip main.zip```
 - run the following command to move the Docker-main folder:

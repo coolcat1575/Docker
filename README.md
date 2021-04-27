@@ -1,4 +1,4 @@
-# Pierre's Home server
+# Pierre's Home Automation Server
 This guide is aimed at everyone seting up their own home automation server for the first time.
  
 ## Prerequsits: 

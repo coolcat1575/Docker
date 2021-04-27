@@ -21,13 +21,13 @@ This guide is aimed at everyone seting up their own home automation server for t
 ## Task sequense to install Docker:
 - Log into computer with root user
 - run the following command to install wget and unzip: 
-```apt install wget unzip ```
+  - ```apt install wget unzip ```
 - run the following command to download the repository: 
-```wget https://github.com/coolcat1575/Docker/archive/refs/heads/main.zip```
+  - ```wget https://github.com/coolcat1575/Docker/archive/refs/heads/main.zip```
 - extract the file with: 
-```unzip main.zip```
+  - ```unzip main.zip```
 - run the following command to move the Docker-main folder:
-```mv Docker-main/ /usr/local/docker```
+  - ```mv Docker-main/ /usr/local/docker```
 - run the following command to make the files executable:
   - ```chmod 755 /usr/local/docker/install_docker```
   - ```chmod 755 /usr/local/docker/cleandocker```
@@ -37,17 +37,17 @@ This guide is aimed at everyone seting up their own home automation server for t
   
 ## Test the installation. 
 - run the following command to move the Docker-main folder:
-```docker-compose --version```
+  - ```docker-compose --version```
 
 ## Enable normal user to run docker:
 - run the following command to create the group "docker":
-```groupadd docker```
+  - ```groupadd docker```
 - run the following command to add the user "user" the group "docker":
-```usermod -aG docker user``` 
+  - ```usermod -aG docker user``` 
  
 ## Reboot computer. 
 - run the following command to reboot the :
-```reboot```
+  - ```reboot```
 
 
 

@@ -8,7 +8,7 @@ This guide is aimed at everyone seting up their own home automation server for t
 - Balena Etcher (Get it here https://www.balena.io/etcher/ )
 - Basic linux knowledge
 
-## Task sequence to install Debian:
+## Install Debian:
 - Burn ISO to USB memory with Balena Etcher
 - Boot on USB memory and use graphical interface to install Debian according to notes below
   - Select keymap to match your keyboard
@@ -22,7 +22,7 @@ This guide is aimed at everyone seting up their own home automation server for t
   - check "SSH Server"
 - Remove the USB memory and reboot computer
 
-## Task sequence to install Docker:
+## Install Docker:
 - Log into computer with root user
 - run the following command to install wget and unzip: 
   - ```apt install wget unzip ```

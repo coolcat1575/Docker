@@ -33,7 +33,7 @@ This guide is aimed at everyone seting up their own home automation server for t
   - ```chmod 755 /usr/local/docker/cleandocker```
   - ```chmod 755 /usr/local/docker/wait-for-it.sh```
 - run the following script to install docker:
- ```/usr/local/docker/install_docker```
+  - ```/usr/local/docker/install_docker```
   
 ## Test the installation. 
 - run the following command to move the Docker-main folder:

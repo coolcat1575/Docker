@@ -20,7 +20,8 @@ Task sequense to install Debian:
 
 Task sequense to install Docker:
 - [ ] Log into computer with root user
-- [ ] run the following command to install wget and unzip: apt install wget unzip
+- [ ] run the following command to install wget and unzip: 
+    apt install wget unzip
 - [ ] run the following command to download the repository: wget https://github.com/coolcat1575/Docker/archive/refs/heads/main.zip
 - [ ] extract the file with: unzip main.zip
 - [ ] run the following command to move the Docker-main folder: mv Docker-main/ /usr/local/Docker

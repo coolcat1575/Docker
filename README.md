@@ -1,4 +1,30 @@
-# My Docker configuration for the following applications
+# Pierre's Home server
+This guide is aimed at everyone seting up their own home automation server for the first time.
+ 
+Prerequsits: 
+- 64 bit capable computer 
+- Debian amd64 iso (Get the netinstallation ISO from here https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/ )
+- USB memory 4 GB
+- Balena Etcher (Get it here https://www.balena.io/etcher/ )
+- Basic linux knowledge
+
+Task sequense to install Debian:
+- Burn ISO to USB memory with Balena Etcher
+- Boot on USB memory and install Debian with notes below
+  - Select correct keyboard
+  - configure root password
+  - Configure new user
+  - Remove graphical interface
+  - Add SSH Server
+- Remove the USB memory and reboot computer
+
+Task sequense to install Docker:
+- Log into computer
+- run the following command to download the repository curl https://github.com/coolcat1575/Docker/latest.zip
+- extract the file with tar -zxvf latest.zip
+- 
+ 
+ 
 
 |Application|Description|Settings|
 |-----------|-----------|--------|

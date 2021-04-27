@@ -27,9 +27,21 @@ This guide is aimed at everyone seting up their own home automation server for t
 - extract the file with: 
 ```unzip main.zip```
 - run the following command to move the Docker-main folder:
-```mv Docker-main/ /usr/local/Docker```
-- - run the following script to install docker:
- 
+```mv Docker-main/ /usr/local/docker```
+- run the following command to make the script executable:
+```chmod 755 /usr/local/docker/install_docker```
+- run the following script to install docker:
+ ```/usr/local/docker/install_docker```
+  
+## Test the installation. 
+- run the following command to move the Docker-main folder:
+```docker-compose --version```
+
+## Enable normal user to run docker:
+- run the following command to create the group "docker":
+```groupadd docker```
+- run the following command to add the user `user` the group "docker":
+```usermod -aG docker user``` 
  
 
 |Application|Description|Settings|

@@ -61,11 +61,17 @@ This guide is aimed at everyone seting up their own home automation server for t
 ## Configuring & running Docker:
 
 ### Configure enviromental file. 
-- run the following command to configure the env. file :
+- run the following command to configure the env. file:
   - ```mv /usr/local/docker/env /usr/local/docker/.env```
   - ```nano /usr/local/docker/.env```
   - Update the file with your passowords
   - ```ctrl + x``` to save the file 
+
+### start docker 
+- run the following command to start the docker:
+  - /usr/local/docker/docker-compose up -d 
+
+## Docker Applications:
 
 |Application|Description|Settings|
 |-----------|-----------|--------|

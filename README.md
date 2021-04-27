@@ -24,7 +24,9 @@ This guide is aimed at everyone seting up their own home automation server for t
 - Remove the USB memory and reboot computer
 
 ## Install Docker:
-- Log into computer with root user
+- Log into computer with the new user
+- run the following command to switch to root user:
+  - ```su -```
 - run the following command to install wget and unzip: 
   - ```apt install wget unzip ```
 - run the following command to download the repository: 

@@ -102,3 +102,9 @@ This guide is aimed at everyone setting up their own home automation server for 
 |zabbixserver|Zabbix network monitor server|Network=Host|
 |zabbixsnmptraps|Zabbix trap server|Exposes port 162|
 |zabbixwebnginx|Zabbix Web Server|Network=Host|
+
+## Roadmap / To Do:
+- Move more seetings from docker-compose.conf to .env file
+- Automate syncronisation local-github-local
+- add error management in installation script
+- Autoclean unused docker images, containers, networks, a.s.o

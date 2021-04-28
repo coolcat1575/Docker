@@ -108,3 +108,5 @@ This guide is aimed at everyone setting up their own home automation server for 
 - Automate syncronisation local-github-local
 - add error management in installation script
 - Autoclean unused docker images, containers, networks, a.s.o
+- Add configuration for different docker containers
+- add dockerfiles
